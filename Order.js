@@ -1,6 +1,12 @@
 const { UUID } = require("./UUID");
 
 class Order {
+  static BUY_MARKET = "BUY_MARKET";
+
+  static types = {
+    [Order.BUY_MARKET]: true,
+  };
+
   constructor(price, orderType, date, quantity = 1) {
     this.price = price;
     this.date = date;
@@ -57,6 +63,27 @@ Order.orderSellComparator = (o1, o2) => {
 
 Order.equals = (o1, o2) => {
   return o1.id == o2.id;
+};
+
+Order.validate = (order) => {
+  if (!order) return false;
+  if (!order.price || typeof order.price != "number") {
+    console.log("Invalid price");
+    return false;
+  }
+  if (!order.orderType || Order.types[order.orderType] == undefined) {
+    console.log("invalid orderType");
+    return false;
+  }
+  if (!order.quantity || typeof order.quantity != "number") {
+    console.log("invalid quantity");
+    return false;
+  }
+  if (!order.date || typeof order.date != "string") {
+    console.log("invalid Date");
+    return false;
+  }
+  return true;
 };
 
 module.exports = { Order };

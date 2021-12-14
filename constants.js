@@ -4,9 +4,9 @@ const SUBMIT_BUY_ORDER = "SUBMIT_BUY_ORDER";
 const SUBMIT_SELL_ORDER = "SUBMIT_SELL_ORDER";
 const DEPOSIT_FUNDS = "DEPOSIT_FUNDS";
 const WITHDRAW_FUNDS = "WITHDRAW_FUNDS";
-const PORT = 3000;
+const PORT = 55551;
 
-const PORT = (module.exports = {
+module.exports = {
   USER_CREATE,
   USER_AUTHENTICATE,
   SUBMIT_BUY_ORDER,
@@ -14,4 +14,4 @@ const PORT = (module.exports = {
   DEPOSIT_FUNDS,
   WITHDRAW_FUNDS,
   PORT,
-});
+};

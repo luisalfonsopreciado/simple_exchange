@@ -7,7 +7,6 @@ class User {
     this.username = username;
     this.password = password;
     this.funds = funds;
-    this.orders = {};
     this.id = UUID.createUUID();
   }
 
@@ -27,6 +26,26 @@ class User {
     );
   }
 }
+
+User.validate = (user) => {
+  if (!user) return false;
+  if (!user.firstName || typeof user.firstName != "string" || user.firstName.length > 20) {
+    return false;
+  }
+  if (!user.lastName || typeof user.lastName != "string" || user.lastName.length > 20) {
+    return false;
+  }
+  if (!user.username || typeof user.username != "string" || user.username.length > 20) {
+    return false;
+  }
+  if (!user.password || typeof user.password != "string" || user.password.length > 20 || user.password.length < 5) {
+    return false;
+  }
+  if (!user.funds || typeof user.funds != "number" || user.funds < 0) {
+    return false;
+  }
+  return true;
+};
 
 module.exports = {
   User,

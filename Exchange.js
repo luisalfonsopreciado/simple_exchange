@@ -19,6 +19,7 @@ class Exchange {
   submitBuyOrder(buyOrder) {
     this.buyOrders.push(buyOrder);
     this._fillMatchingOrders();
+    console.log("Buy order submitted")
   }
 
   /**
@@ -28,6 +29,7 @@ class Exchange {
   submitSellOrder(sellOrder) {
     this.sellOrders.push(sellOrder);
     this._fillMatchingOrders();
+    console.log("Buy order submitted")
   }
 
   /**

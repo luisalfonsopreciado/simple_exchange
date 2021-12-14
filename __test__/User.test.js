@@ -37,3 +37,19 @@ test("User equals", () => {
   expect(user1.equals(user3)).toBeFalsy();
   expect(user3.equals(user1)).toBeFalsy();
 });
+
+test("User validate", () => {
+  const user1 = new User("Luis", "Preciado", "luis", "password", 100);
+  const userLongFirstName = new User("Thisisaverylonglastnameforsureexceedstwentychars", "Preciado", "luis", "password", 100);
+  const userLongLastName = new User("Luis", "Thisisaverylonglastnameforsureexceedstwentychars", "luis", "password", 100);
+  const userLongUsername = new User("Luis", "Preciado", "Thisisaverylonglastnameforsureexceedstwentychars", "password", 100);
+  const userShortPassword = new User("Luis", "Preciado", "luis", "pswd", 100);
+  const userLongPassword = new User("Luis", "Preciado", "luis", "Thisisaverylonglastnameforsureexceedstwentychars", 100);
+
+  expect(User.validate(user1)).toBeTruthy();
+  expect(User.validate(userLongFirstName)).toBeFalsy();
+  expect(User.validate(userLongLastName)).toBeFalsy();
+  expect(User.validate(userLongUsername)).toBeFalsy();
+  expect(User.validate(userShortPassword)).toBeFalsy();
+  expect(User.validate(userLongPassword)).toBeFalsy();
+})
