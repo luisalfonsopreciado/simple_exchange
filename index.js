@@ -11,7 +11,12 @@ const { Order } = require("./Order");
 const { User } = require("./User");
 const { UserAuthManager } = require("./UserAuthManager");
 
-const exchange = new Exchange("LAP", new PriorityQueue(), new PriorityQueue());
+const exchange = new Exchange(
+  "LAP",
+  new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+);
+
 const authManager = new UserAuthManager();
 
 app.get("/", (req, res) => {
@@ -23,7 +28,7 @@ io.on("connection", (socket) => {
 
   socket.on(cts.SUBMIT_BUY_ORDER, (event) => {
     console.log(
-      "Received " + cts.SUBMIT_BUY_ORDER + " " + JSON.stringify(event)
+      "[Order Received] " + cts.SUBMIT_BUY_ORDER + " " + JSON.stringify(event)
     );
     if (!Order.validate(event)) {
       console.log("Invalid " + cts.SUBMIT_BUY_ORDER);
@@ -34,16 +39,17 @@ io.on("connection", (socket) => {
 
   socket.on(cts.SUBMIT_SELL_ORDER, (event) => {
     console.log(
-      "Received " + cts.SUBMIT_SELL_ORDER + " " + JSON.stringify(event)
+      "[Order Received] " + cts.SUBMIT_SELL_ORDER + " " + JSON.stringify(event)
     );
-    if (!Order.validate(event.order)) {
+    if (!Order.validate(event)) {
+      console.log("Invalid Sell Order");
       return socket.send("Invalid Order");
     }
-    exchange.submitSellOrder(event.order);
+    exchange.submitSellOrder(event);
   });
 
   socket.on(cts.USER_CREATE, (event) => {
-    console.log("Received " + cts.USER_CREATE + " " + JSON.stringify(event));
+    // console.log("[User Create] " + cts.USER_CREATE + " " + JSON.stringify(event));
     if (!User.validate(event.user)) {
       return socket.send("Invalid User");
     }
@@ -54,9 +60,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on(cts.USER_AUTHENTICATE, (event) => {
-    console.log(
-      "Received " + cts.USER_AUTHENTICATE + " " + JSON.stringify(event)
-    );
     const authToken = !authManager.authenticateUser(
       event.username,
       event.password

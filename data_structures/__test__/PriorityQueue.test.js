@@ -1,5 +1,7 @@
 const { PriorityQueue } = require("../PriorityQueue");
 const { Order } = require("../../Order");
+const { Exchange } = require("../../Exchange");
+const { Random } = require("../../Random");
 
 const order = new Order(100, "BUY_CALL", new Date().toISOString());
 const order1 = new Order(120, "BUY_STOP", new Date().toISOString());
@@ -9,8 +11,27 @@ const order4 = new Order(160, "BUY_STOP", new Date().toISOString());
 const order5 = new Order(70, "BUY_STOP", new Date().toISOString());
 const order6 = new Order(100, "BUY_CALL", new Date().toISOString());
 
+generateRandomBuyOrder = () => {
+  return {
+    price: Random.randBetween(1, 100),
+    orderType: Order.BUY_MARKET,
+    quantity: Random.randBetween(1, 100),
+  };
+};
+
+generateRandomSellOrder = () => {
+  return {
+    price: Random.randBetween(1, 100),
+    orderType: Order.SELL_MARKET,
+    quantity: Random.randBetween(1, 100),
+  };
+};
+
 const constructBuyOrderQueue = () => {
-  const buyQueue = new PriorityQueue(Order.orderBuyComparator, Order.equals);
+  const buyQueue = new PriorityQueue(
+    Exchange.DECREASING_PRICE_COMPARATOR,
+    Order.equals
+  );
   buyQueue.push(order);
   buyQueue.push(order1);
   buyQueue.push(order2);
@@ -30,7 +51,10 @@ const sorder5 = new Order(70, "SELL_STOP", new Date().toISOString());
 const sorder6 = new Order(100, "SELL_CALL", new Date().toISOString());
 
 const constructSellOrderQueue = () => {
-  const sellQueue = new PriorityQueue(Order.orderSellComparator, Order.equals);
+  const sellQueue = new PriorityQueue(
+    Exchange.INCREASING_PRICE_COMPARATOR,
+    Order.equals
+  );
 
   sellQueue.push(sorder);
   sellQueue.push(sorder1);
@@ -98,6 +122,22 @@ test("Priority Queue ordering: Buy Orders", () => {
   }
 });
 
+test("Priority Queue ordering: Buy Orders Random", () => {
+  const buyOrders = new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR);
+
+  for (let i = 0; i < 100; i++) {
+    buyOrders.push(generateRandomBuyOrder());
+  }
+
+  let top = buyOrders.pop();
+
+  while (!buyOrders.isEmpty()) {
+    const t = buyOrders.pop();
+    expect(top.price - t.price >= 0).toBeTruthy();
+    top = t;
+  }
+});
+
 test("Priority Queue ordering: Sell Orders", () => {
   const sellQueue = constructSellOrderQueue();
 
@@ -105,6 +145,22 @@ test("Priority Queue ordering: Sell Orders", () => {
 
   while (!sellQueue.isEmpty()) {
     const t = sellQueue.pop();
+    expect(top.price - t.price <= 0).toBeTruthy();
+    top = t;
+  }
+});
+
+test("Priority Queue ordering: Sell Orders Random", () => {
+  const sellOrders = new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR);
+
+  for (let i = 0; i < 100; i++) {
+    sellOrders.push(generateRandomSellOrder());
+  }
+
+  let top = sellOrders.pop();
+
+  while (!sellOrders.isEmpty()) {
+    const t = sellOrders.pop();
     expect(top.price - t.price <= 0).toBeTruthy();
     top = t;
   }

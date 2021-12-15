@@ -19,7 +19,8 @@ class Exchange {
   submitBuyOrder(buyOrder) {
     this.buyOrders.push(buyOrder);
     this._fillMatchingOrders();
-    console.log("Buy order submitted")
+    // console.log("Buy order submitted")
+    console.log(this.buyOrders);
   }
 
   /**
@@ -29,7 +30,8 @@ class Exchange {
   submitSellOrder(sellOrder) {
     this.sellOrders.push(sellOrder);
     this._fillMatchingOrders();
-    console.log("Buy order submitted")
+    // console.log("Sell order submitted")
+    console.log(this.sellOrders);
   }
 
   /**
@@ -43,6 +45,14 @@ class Exchange {
     ) {
       const topBuyOrder = this.buyOrders.peek();
       const topSellOrder = this.sellOrders.peek();
+      console.log(
+        "[Order Filled] Buy Price: " +
+          topBuyOrder.price +
+          " Sell Price: " +
+          topSellOrder.price +
+          " Quantity: " +
+          Math.min(topBuyOrder.quantity, topSellOrder.quantity)
+      );
       if (topBuyOrder.quantity < topSellOrder.quantity) {
         topSellOrder.quantity -= topBuyOrder.quantity;
         this.filledOrders.push(this.buyOrders.pop());
@@ -88,8 +98,30 @@ class Exchange {
   getAsk() {
     return this.sellOrders.peek().price;
   }
-  
+
   getMarketDepth(numOrders) {}
 }
+
+/**
+ * Comparator that orders items with increasing prices.
+ * Used in the buyOrderQueue.
+ * @param {Order} o1
+ * @param {Order} o2
+ * @returns
+ */
+Exchange.INCREASING_PRICE_COMPARATOR = (o1, o2) => {
+  return o1.price < o2.price;
+};
+
+/**
+ * Comparator that orders items with decreasing prices.
+ * Used in the sellOrderQueue.
+ * @param {Order} o1
+ * @param {Order} o2
+ * @returns
+ */
+Exchange.DECREASING_PRICE_COMPARATOR = (o1, o2) => {
+  return o1.price > o2.price;
+};
 
 module.exports = { Exchange };

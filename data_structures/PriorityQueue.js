@@ -1,26 +1,26 @@
-const top = 0;
 const parent = (i) => ((i + 1) >>> 1) - 1;
-const left = (i) => (i << 1) + 1;
-const right = (i) => (i + 1) << 1;
+const leftChild = (i) => 2 * i + 1;
+const rightChild = (i) => 2 * i + 2;
 
 class PriorityQueue {
   constructor(comparator = (a, b) => a > b, equals = (a, b) => a == b) {
-    this._heap = [];
-    this._comparator = comparator;
-    this._equals = equals;
+    this.heap = [];
+    this.comparator = comparator;
+    this.equals = equals;
+    this.top = 0;
   }
 
   /**
    * Returns the size of the Priority Queue.
-   * @returns
+   * @returns size
    */
   size() {
-    return this._heap.length;
+    return this.heap.length;
   }
 
   /**
    * Returns true if the Priority Queue is empty, false otherwise.
-   * @returns
+   * @returns isEmpty
    */
   isEmpty() {
     return this.size() == 0;
@@ -28,98 +28,122 @@ class PriorityQueue {
 
   /**
    * Returns the element with the highest priority in the queue without removal.
-   * @returns
+   * @returns top
    */
   peek() {
-    return this._heap[top];
+    return this.heap[this.top];
   }
 
   /**
-   * Inserts a new element into the priority queue.
+   * Inserts a set new element into the priority queue.
    * @param  {...Object} values
    * @returns
    */
   push(...values) {
     values.forEach((value) => {
-      this._heap.push(value);
-      this._siftUp();
+      this.heap.push(value);
+      this.siftUp();
     });
     return this.size();
   }
 
   /**
    * Removes the element with the highest priority in the queue.
-   * @returns
+   * @returns poppedValue
    */
   pop() {
     const poppedValue = this.peek();
     const bottom = this.size() - 1;
-    if (bottom > top) {
-      this._swap(top, bottom);
+    if (bottom > this.top) {
+      this.swap(this.top, bottom);
     }
-    this._heap.pop();
-    this._siftDown(top);
+    this.heap.pop();
+    this.siftDown(this.top);
     return poppedValue;
   }
 
   /**
    * Replaces the element with the highest priority with the input value.
    * @param {Object} value
-   * @returns
+   * @returns replacedValue
    */
   replace(value) {
     const replacedValue = this.peek();
-    this._heap[top] = value;
-    this._siftDown(top);
+    this.heap[this.top] = value;
+    this.siftDown(this.top);
     return replacedValue;
   }
 
   /**
    * Removes a particular element in the priority queue.
    * @param {Object} value
-   * @returns
+   * @returns removedValue
    */
   remove(value) {
-    for (let idx in this._heap) {
-      if (this._equals(value, this._heap[idx])) {
+    for (let idx in this.heap) {
+      if (this.equals(value, this.heap[idx])) {
         const bottom = this.size() - 1;
-        this._swap(idx, bottom);
-        this._heap.pop();
+        this.swap(idx, bottom);
+        this.heap.pop();
         if (bottom != idx) {
-          this._siftDown(idx);
+          this.siftDown(idx);
         }
         return;
       }
     }
   }
 
-  _greater(i, j) {
-    return this._comparator(this._heap[i], this._heap[j]);
+  /**
+   * Returns true if element at index i is greater than
+   * element at location j in the heap array.
+   * @param {Number} i - index i
+   * @param {Number} j - index j
+   * @returns isGreater
+   */
+  greater(i, j) {
+    return this.comparator(this.heap[i], this.heap[j]);
   }
 
-  _swap(i, j) {
-    [this._heap[i], this._heap[j]] = [this._heap[j], this._heap[i]];
+  /**
+   * Swaps two elements in an array.
+   * @param {Number} i - index i
+   * @param {Number} j - index j
+   */
+  swap(i, j) {
+    const temp = this.heap[i];
+    this.heap[i] = this.heap[j];
+    this.heap[j] = temp;
   }
 
-  _siftUp() {
-    let node = this.size() - 1;
-    while (node > top && this._greater(node, parent(node))) {
-      this._swap(node, parent(node));
-      node = parent(node);
+  /**
+   * Sift up the last element in the heap.
+   */
+  siftUp() {
+    let nodeIdx = this.size() - 1;
+    while (nodeIdx > this.top && this.greater(nodeIdx, parent(nodeIdx))) {
+      this.swap(nodeIdx, parent(nodeIdx));
+      nodeIdx = parent(nodeIdx);
     }
   }
-  
-  _siftDown(node) {
+
+  /**
+   * Sift an element down.
+   * @param {Number} nodeIdx
+   */
+  siftDown(nodeIdx) {
     while (
-      (left(node) < this.size() && this._greater(left(node), node)) ||
-      (right(node) < this.size() && this._greater(right(node), node))
+      (leftChild(nodeIdx) < this.size() &&
+        this.greater(leftChild(nodeIdx), nodeIdx)) ||
+      (rightChild(nodeIdx) < this.size() &&
+        this.greater(rightChild(nodeIdx), nodeIdx))
     ) {
       let maxChild =
-        right(node) < this.size() && this._greater(right(node), left(node))
-          ? right(node)
-          : left(node);
-      this._swap(node, maxChild);
-      node = maxChild;
+        rightChild(nodeIdx) < this.size() &&
+        this.greater(rightChild(nodeIdx), leftChild(nodeIdx))
+          ? rightChild(nodeIdx)
+          : leftChild(nodeIdx);
+      this.swap(nodeIdx, maxChild);
+      nodeIdx = maxChild;
     }
   }
 }

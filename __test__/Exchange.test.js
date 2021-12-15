@@ -11,7 +11,7 @@ const order5 = new Order(70, "BUY_STOP", new Date().toISOString());
 const order6 = new Order(100, "BUY_CALL", new Date().toISOString());
 
 const constructBuyOrderQueue = () => {
-  const buyQueue = new PriorityQueue(Order.orderBuyComparator, Order.equals);
+  const buyQueue = new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR, Order.equals);
   buyQueue.push(order);
   buyQueue.push(order1);
   buyQueue.push(order2);
@@ -31,7 +31,7 @@ const sorder5 = new Order(70, "SELL_STOP", new Date().toISOString());
 const sorder6 = new Order(100, "SELL_CALL", new Date().toISOString());
 
 const constructSellOrderQueue = () => {
-  const sellQueue = new PriorityQueue(Order.orderSellComparator, Order.equals);
+  const sellQueue = new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR, Order.equals);
 
   sellQueue.push(sorder);
   sellQueue.push(sorder1);
@@ -46,8 +46,8 @@ const constructSellOrderQueue = () => {
 test("Creates an Exchange", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
 
   expect(exchange.buyOrders).toBeTruthy();
@@ -59,8 +59,8 @@ test("Creates an Exchange", () => {
 test("Submits Buy Order", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const buyOrder = new Order(170, "BUY_CALL", new Date().toISOString());
   exchange.submitBuyOrder(buyOrder);
@@ -73,8 +73,8 @@ test("Submits Buy Order", () => {
 test("Submits Sell Order", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString());
   exchange.submitSellOrder(sellOrder);
@@ -87,8 +87,8 @@ test("Submits Sell Order", () => {
 test("Returns proper bid ask spread", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString());
   exchange.submitSellOrder(sellOrder);
@@ -102,8 +102,8 @@ test("Returns proper bid ask spread", () => {
 test("Fills Matching Orders: Same Price, Same Quantity", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 1);
   exchange.submitSellOrder(sellOrder);
@@ -118,8 +118,8 @@ test("Fills Matching Orders: Same Price, Same Quantity", () => {
 test("Fills Matching Orders: Same Price, Different Quantity", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 2);
   exchange.submitSellOrder(sellOrder);
@@ -134,8 +134,8 @@ test("Fills Matching Orders: Same Price, Different Quantity", () => {
 test("Fills Matching Orders: Same Price, Same Quantity", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 2);
   exchange.submitSellOrder(sellOrder);
@@ -152,8 +152,8 @@ test("Fills Matching Orders: Same Price, Same Quantity", () => {
 test("Fills Matching Orders: Different Quantity, Different Prices", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
 
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 20);
@@ -173,8 +173,8 @@ test("Fills Matching Orders: Different Quantity, Different Prices", () => {
 test("Fills Matching Orders: Different Quantity, Different Prices, filled Orders is ok", () => {
   const exchange = new Exchange(
     "AMZN",
-    new PriorityQueue(),
-    new PriorityQueue()
+    new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
+  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
 
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 20);

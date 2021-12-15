@@ -2,9 +2,11 @@ const { UUID } = require("./UUID");
 
 class Order {
   static BUY_MARKET = "BUY_MARKET";
+  static SELL_MARKET = "SELL_MARKET";
 
   static types = {
     [Order.BUY_MARKET]: true,
+    [Order.SELL_MARKET]: true,
   };
 
   constructor(price, orderType, date, quantity = 1) {
@@ -79,10 +81,10 @@ Order.validate = (order) => {
     console.log("invalid quantity");
     return false;
   }
-  if (!order.date || typeof order.date != "string") {
-    console.log("invalid Date");
-    return false;
-  }
+  // if (!order.date || typeof order.date != "string") {
+  //   console.log("invalid Date");
+  //   return false;
+  // }
   return true;
 };
 
