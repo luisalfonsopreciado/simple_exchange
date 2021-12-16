@@ -33,9 +33,6 @@ test("Order validate", () => {
 
   //   const order6 = new Order(100, Order.BUY_MARKET, "Invalid ISO String!", 100);
 
-  console.log(typeof order1.price);
-  console.log(Order.types[Order.BUY_MARKET]);
-  console.log(Order.types["Order.BUY_MARKET"] == undefined);
   expect(typeof order1.price === "number").toBeTruthy();
   expect(Order.validate(order1)).toBeTruthy();
   expect(Order.validate(order2)).toBeFalsy();
