@@ -10,6 +10,12 @@ const { PriorityQueue } = require("./data_structures/PriorityQueue");
 const { Order } = require("./Order");
 const { User } = require("./User");
 const { UserAuthManager } = require("./UserAuthManager");
+var cors = require("cors");
+
+app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+app.use(cors());
 
 const exchange = new Exchange(
   "LAP",
@@ -19,44 +25,70 @@ const exchange = new Exchange(
 
 const authManager = new UserAuthManager();
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+app.post("/create-user", (req, res, next) => {
+  console.log(req.body);
+  const { user } = req.body;
+
+  if (!User.validateRequest(user)) {
+    return res.status(400).send("Invalid User arguments");
+  }
+
+  user.funds = 1000;
+
+  if (!authManager.createUser(user)) {
+    return res.status(400).send("Username taken");
+  }
+
+  return res.status(200).send(user);
+});
+
+app.post("/authenticate", (req, res) => {
+  console.log(req.body);
 });
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
-
   socket.on(cts.SUBMIT_BUY_ORDER, (event) => {
+    if (!authManager.validateToken(event.authToken)) {
+      return socket.send("Invalid token");
+    }
+
     console.log(
-      "[Order Received] " + cts.SUBMIT_BUY_ORDER + " " + JSON.stringify(event)
+      "[Order Received] " +
+        cts.SUBMIT_BUY_ORDER +
+        " " +
+        JSON.stringify(event.order)
     );
-    if (!Order.validate(event)) {
+
+    if (!Order.validate(event.order)) {
       console.log("Invalid " + cts.SUBMIT_BUY_ORDER);
       return socket.send("Invalid Order");
     }
-    exchange.submitBuyOrder(event);
+
+    exchange.submitBuyOrder(event.order);
   });
 
   socket.on(cts.SUBMIT_SELL_ORDER, (event) => {
+    if (!authManager.validateToken(event.authToken)) {
+      return socket.send("Invalid token");
+    }
+
     console.log(
-      "[Order Received] " + cts.SUBMIT_SELL_ORDER + " " + JSON.stringify(event)
+      "[Order Received] " +
+        cts.SUBMIT_SELL_ORDER +
+        " " +
+        JSON.stringify(event.order)
     );
-    if (!Order.validate(event)) {
+
+    if (!Order.validate(event.order)) {
       console.log("Invalid Sell Order");
       return socket.send("Invalid Order");
     }
-    exchange.submitSellOrder(event);
+
+    exchange.submitSellOrder(event.order);
   });
 
   socket.on(cts.USER_CREATE, (event) => {
     // console.log("[User Create] " + cts.USER_CREATE + " " + JSON.stringify(event));
-    if (!User.validate(event.user)) {
-      return socket.send("Invalid User");
-    }
-    if (!authManager.createUser()) {
-      return socket.send("Unable to create user");
-    }
-    socket.send("User created successfully");
   });
 
   socket.on(cts.USER_AUTHENTICATE, (event) => {
@@ -67,7 +99,8 @@ io.on("connection", (socket) => {
     if (!authToken) {
       return socket.send("Invalid Credentials");
     }
-    return authToken;
+
+    return socket.send(authToken);
   });
 
   socket.on("disconnect", () => {

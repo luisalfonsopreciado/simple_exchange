@@ -33,15 +33,15 @@ test("UserAuthManager validate token", () => {
   const manager = new UserAuthManager();
   const firstAuthToken = manager.generateAuthToken(user1);
 
-  expect(manager.validateToken(user1, firstAuthToken)).toBeTruthy();
+  expect(manager.validateToken(user1.id, firstAuthToken)).toBeTruthy();
 
   const user2 = new User("Luis", "Preciado", "luis", "password", 100);
   const secondAuthToken = manager.generateAuthToken(user2);
 
-  expect(manager.validateToken(user2, secondAuthToken)).toBeTruthy();
+  expect(manager.validateToken(user2.id, secondAuthToken)).toBeTruthy();
 
-  expect(manager.validateToken(user1, secondAuthToken)).toBeFalsy();
-  expect(manager.validateToken(user2, firstAuthToken)).toBeFalsy();
+  expect(manager.validateToken(user1.id, secondAuthToken)).toBeFalsy();
+  expect(manager.validateToken(user2.id, firstAuthToken)).toBeFalsy();
 });
 
 test("Create / Authenticate User", () => {

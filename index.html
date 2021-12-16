@@ -63,7 +63,13 @@
 
     <h1>SUBMIT BUY ORDER</h1>
     <form id="form-buy-order" action="">
-      <input type="text" id="buy-price" autocomplete="off" />
+      <h3>Price</h3>
+      <input type="number" id="buy-price" autocomplete="off" />
+      <h3>Quantity</h3>
+      <input type="number" id="buy-quantity" autocomplete="off" />
+      <h3>Order Type</h3>
+      <input type="text" id="buy-orderType" autocomplete="off" />
+      <button>Submit</button>
     </form>
 
     <h1>SUBMIT SELL ORDER</h1>
@@ -79,17 +85,24 @@
 
       var form = document.getElementById("form");
       var input = document.getElementById("input");
+      var buyOrderForm = document.getElementById("form-buy-order");
+      var buyPrice = document.getElementById("buy-price")
+      var buyQuantity = document.getElementById("buy-quantity")
+      var buyOrderType = document.getElementById("buy-orderType")
 
       const sendBuyOrder = () => {
-        console.log("HERE");
+        console.log("HERE" + (buyPrice.value + 2));
         socket.emit("SUBMIT_BUY_ORDER", {
-          exchange: "CS4431W",
-          instrument: "AAPL",
-          price: "170.3",
-          orderType: "MARKET",
-          quantity: "100",
+          price: buyPrice.value,
+          orderType: buyOrderType.value,
+          quantity: buyQuantity.value,
         });
       };
+
+      buyOrderForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        sendBuyOrder(); 
+      })
 
       form.addEventListener("submit", function (e) {
         e.preventDefault();

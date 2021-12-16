@@ -12,8 +12,8 @@ class User {
 
   /**
    * Returns true if two User objects are equal.
-   * @param {User} u2 
-   * @returns 
+   * @param {User} u2
+   * @returns
    */
   equals(u2) {
     if (!u2) return false;
@@ -27,18 +27,69 @@ class User {
   }
 }
 
+User.validateRequest = (user) => {
+  if (!user) return false;
+  if (
+    !user.firstName ||
+    typeof user.firstName != "string" ||
+    user.firstName.length > 20
+  ) {
+    return false;
+  }
+  if (
+    !user.lastName ||
+    typeof user.lastName != "string" ||
+    user.lastName.length > 20
+  ) {
+    return false;
+  }
+  if (
+    !user.username ||
+    typeof user.username != "string" ||
+    user.username.length > 20
+  ) {
+    return false;
+  }
+  if (
+    !user.password ||
+    typeof user.password != "string" ||
+    user.password.length > 20 ||
+    user.password.length < 5
+  ) {
+    return false;
+  }
+  return true;
+};
+
 User.validate = (user) => {
   if (!user) return false;
-  if (!user.firstName || typeof user.firstName != "string" || user.firstName.length > 20) {
+  if (
+    !user.firstName ||
+    typeof user.firstName != "string" ||
+    user.firstName.length > 20
+  ) {
     return false;
   }
-  if (!user.lastName || typeof user.lastName != "string" || user.lastName.length > 20) {
+  if (
+    !user.lastName ||
+    typeof user.lastName != "string" ||
+    user.lastName.length > 20
+  ) {
     return false;
   }
-  if (!user.username || typeof user.username != "string" || user.username.length > 20) {
+  if (
+    !user.username ||
+    typeof user.username != "string" ||
+    user.username.length > 20
+  ) {
     return false;
   }
-  if (!user.password || typeof user.password != "string" || user.password.length > 20 || user.password.length < 5) {
+  if (
+    !user.password ||
+    typeof user.password != "string" ||
+    user.password.length > 20 ||
+    user.password.length < 5
+  ) {
     return false;
   }
   if (!user.funds || typeof user.funds != "number" || user.funds < 0) {

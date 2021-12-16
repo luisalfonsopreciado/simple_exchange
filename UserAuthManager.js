@@ -26,15 +26,15 @@ class UserAuthManager {
 
   /**
    * Validates an Auth Token for a given user
-   * @param {User} user
+   * @param {string} userId
    * @param {string} token
    * @returns isValidToken
    */
-  validateToken(user, token) {
-    if (!this.userAuthTokens[user.id]) {
+  validateToken(userId, token) {
+    if (!this.userAuthTokens[userId]) {
       return false;
     }
-    return this.userAuthTokens[user.id] == token;
+    return this.userAuthTokens[userId] == token;
   }
 
   /**
