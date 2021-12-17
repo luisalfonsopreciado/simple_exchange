@@ -113,12 +113,9 @@ class Exchange {
 
       if (lastPriceIdx == -1 || bids[lastPriceIdx].price != price) {
         lastPriceIdx++;
-        bids.push({
-          price,
-          quantity,
-        });
+        bids.push([price, quantity]);
       } else {
-        bids[lastPriceIdx].quantity += quantity;
+        bids[lastPriceIdx][1] += quantity;
       }
     }
 
@@ -132,17 +129,14 @@ class Exchange {
 
       if (lastPriceIdx == -1 || asks[lastPriceIdx].price != price) {
         lastPriceIdx++;
-        asks.push({
-          price,
-          quantity,
-        });
+        asks.push([price, quantity]);
       } else {
-        asks[lastPriceIdx].quantity += quantity;
+        asks[lastPriceIdx][1] += quantity;
       }
     }
 
-    bids.sort((a, b) => a.price - b.price);
-    asks.sort((a, b) => b.price - a.price);
+    bids.sort((a, b) => a[0] - b[0]);
+    asks.sort((a, b) => b[0] - a[0]);
 
     return { bids, asks };
   }

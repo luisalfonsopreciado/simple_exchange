@@ -42,6 +42,13 @@
         color: #fff;
       }
 
+      #container {
+        min-width: 310px;
+        max-width: 1040px;
+        height: 400px;
+        margin: 0 auto;
+      }
+
       #messages {
         list-style-type: none;
         margin: 0;
@@ -54,6 +61,7 @@
         background: #efefef;
       }
     </style>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
   </head>
   <body>
     <ul id="messages"></ul>
@@ -73,6 +81,8 @@
       <button>Submit</button>
     </form>
 
+    <button id="market-depth-update">Update Market Depth</button>
+    <div id="container"></div>
     <h1>SUBMIT SELL ORDER</h1>
     <form id="form-buy-order" action="">
       <input type="text" id="buy-price" autocomplete="off" />
@@ -88,6 +98,9 @@
       var buyPrice = document.getElementById("buy-price");
       var buyQuantity = document.getElementById("buy-quantity");
       var buyOrderType = document.getElementById("buy-orderType");
+      const marketDepthUpdateButton = document.getElementById(
+        "market-depth-update"
+      );
 
       const sendBuyOrder = () => {
         console.log("HERE" + (buyPrice.value + 2));
@@ -109,6 +122,105 @@
         if (input.value) {
           socket.emit("chat message", input.value);
         }
+      });
+
+      const renderMarketDepth = () => {
+        const Http = new XMLHttpRequest();
+        const url = "http://localhost:55551/marketDepth";
+        Http.open("GET", url);
+        Http.send();
+
+        Http.onreadystatechange = (e) => {
+          console.log(Http);
+          const res = JSON.parse(Http.response);
+          console.log(res);
+          Highcharts.chart("container", {
+            chart: {
+              type: "area",
+              zoomType: "xy",
+            },
+            title: {
+              text: "ETH-BTC Market Depth",
+            },
+            xAxis: {
+              minPadding: 0,
+              maxPadding: 0,
+              plotLines: [
+                {
+                  color: "#888",
+                  value: 0.1523,
+                  width: 1,
+                  label: {
+                    text: "Actual price",
+                    rotation: 90,
+                  },
+                },
+              ],
+              title: {
+                text: "Price",
+              },
+            },
+            yAxis: [
+              {
+                lineWidth: 1,
+                gridLineWidth: 1,
+                title: null,
+                tickWidth: 1,
+                tickLength: 5,
+                tickPosition: "inside",
+                labels: {
+                  align: "left",
+                  x: 8,
+                },
+              },
+              {
+                opposite: true,
+                linkedTo: 0,
+                lineWidth: 1,
+                gridLineWidth: 0,
+                title: null,
+                tickWidth: 1,
+                tickLength: 5,
+                tickPosition: "inside",
+                labels: {
+                  align: "right",
+                  x: -8,
+                },
+              },
+            ],
+            legend: {
+              enabled: false,
+            },
+            plotOptions: {
+              area: {
+                fillOpacity: 0.2,
+                lineWidth: 1,
+                step: "center",
+              },
+            },
+            tooltip: {
+              headerFormat:
+                '<span style="font-size=10px;">Price: {point.key}</span><br/>',
+              valueDecimals: 2,
+            },
+            series: [
+              {
+                name: "Bids",
+                data: res.LAP.bids,
+                color: "#03a7a8",
+              },
+              {
+                name: "Asks",
+                data: res.LAP.asks,
+                color: "#fc5857",
+              },
+            ],
+          });
+        };
+      };
+
+      marketDepthUpdateButton.addEventListener("click", () => {
+        renderMarketDepth();
       });
     </script>
   </body>
