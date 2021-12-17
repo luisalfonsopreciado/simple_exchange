@@ -29,6 +29,14 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
+app.get("/signup", (req, res) => {
+  res.sendFile(__dirname + "/signup.html");
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(__dirname + "/login.html");
+});
+
 app.post("/createUser", (req, res) => {
   const user = req.body;
 
@@ -128,6 +136,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
+});
+
+app.get('*', function(req, res){
+  res.status(404).sendFile(__dirname + "/404.html");
 });
 
 module.exports = server;
