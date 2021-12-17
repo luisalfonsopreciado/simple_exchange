@@ -63,8 +63,12 @@ app.post("/authenticate", (req, res) => {
 });
 
 io.on("connection", (socket) => {
+  console.log("user connected");
+  
   socket.on(cts.SUBMIT_BUY_ORDER, (event) => {
-    if (!authManager.validateToken(event.authToken)) {
+    const userId = authManager.validateToken(event.authToken);
+
+    if (!userId) {
       return socket.send("Invalid token");
     }
 
@@ -79,6 +83,8 @@ io.on("connection", (socket) => {
       console.log("Invalid " + cts.SUBMIT_BUY_ORDER);
       return socket.send("Invalid Order");
     }
+
+    event.order.userId = userId;
 
     exchange.submitBuyOrder(event.order);
   });
@@ -120,4 +126,4 @@ io.on("connection", (socket) => {
   });
 });
 
-module.exports = app;
+module.exports = server;

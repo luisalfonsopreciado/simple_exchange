@@ -3,6 +3,8 @@ const { UUID } = require("./UUID");
 
 class UserAuthManager {
   constructor() {
+    // Map userToken to userId
+    this.userTokens = {};
     // Map userId to Auth Tokens
     this.userAuthTokens = {};
     // Map username to user
@@ -16,11 +18,12 @@ class UserAuthManager {
    */
   generateAuthToken(user) {
     if (this.userAuthTokens[user.id]) {
+      this.userTokens[this.userAuthTokens[user.id]] = user.id;
       return this.userAuthTokens[user.id];
     }
     const uuid = UUID.createUUID();
     this.userAuthTokens[user.id] = uuid;
-
+    this.userTokens[uuid] = user.id;
     return uuid;
   }
 
@@ -30,11 +33,8 @@ class UserAuthManager {
    * @param {string} token
    * @returns isValidToken
    */
-  validateToken(userId, token) {
-    if (!this.userAuthTokens[userId]) {
-      return false;
-    }
-    return this.userAuthTokens[userId] == token;
+  validateToken(token) {
+    return this.userTokens[token];
   }
 
   /**
@@ -45,6 +45,7 @@ class UserAuthManager {
   createUser(user) {
     if (!User.validate(user)) return false;
     if (this.userStore[user.username]) return false;
+    user.id = UUID.createUUID();
     this.userStore[user.username] = user;
     return true;
   }
@@ -53,9 +54,9 @@ class UserAuthManager {
    * Authenticate a user.
    * Returns null if user does not exist or if password is invalid.
    * Returns an AuthToken on success.
-   * @param {Username} username 
-   * @param {Password} password 
-   * @returns 
+   * @param {Username} username
+   * @param {Password} password
+   * @returns
    */
   authenticateUser(username, password) {
     if (!this.userStore[username]) return null;

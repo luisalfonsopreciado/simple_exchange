@@ -60,7 +60,8 @@
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
-
+    <!-- HTML -->
+    <div id="chartdiv"></div>
     <h1>SUBMIT BUY ORDER</h1>
     <form id="form-buy-order" action="">
       <h3>Price</h3>
@@ -77,8 +78,6 @@
       <input type="text" id="buy-price" autocomplete="off" />
     </form>
 
-    
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
@@ -86,9 +85,9 @@
       var form = document.getElementById("form");
       var input = document.getElementById("input");
       var buyOrderForm = document.getElementById("form-buy-order");
-      var buyPrice = document.getElementById("buy-price")
-      var buyQuantity = document.getElementById("buy-quantity")
-      var buyOrderType = document.getElementById("buy-orderType")
+      var buyPrice = document.getElementById("buy-price");
+      var buyQuantity = document.getElementById("buy-quantity");
+      var buyOrderType = document.getElementById("buy-orderType");
 
       const sendBuyOrder = () => {
         console.log("HERE" + (buyPrice.value + 2));
@@ -101,8 +100,8 @@
 
       buyOrderForm.addEventListener("submit", function (e) {
         e.preventDefault();
-        sendBuyOrder(); 
-      })
+        sendBuyOrder();
+      });
 
       form.addEventListener("submit", function (e) {
         e.preventDefault();
