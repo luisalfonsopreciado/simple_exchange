@@ -62,9 +62,13 @@ app.post("/authenticate", (req, res) => {
   res.status(200).send({ token: token });
 });
 
+app.get("/marketDepth", (req, res) => {
+  res.status(200).send({ LAP: exchange.getMarketDepth(100) });
+});
+
 io.on("connection", (socket) => {
   console.log("user connected");
-  
+
   socket.on(cts.SUBMIT_BUY_ORDER, (event) => {
     const userId = authManager.validateToken(event.authToken);
 

@@ -1,9 +1,11 @@
+const { PriorityQueue } = require("./data_structures/PriorityQueue");
+
 class Exchange {
   /**
    *
    * @param {string} instrument
-   * @param {Order} buyOrders - PriorityQueue
-   * @param {Order} sellOrders - PriorityQueue
+   * @param {PriorityQueue} buyOrders - PriorityQueue
+   * @param {PriorityQueue} sellOrders - PriorityQueue
    */
   constructor(instrument, buyOrders, sellOrders) {
     this.instrument = instrument;
@@ -99,7 +101,51 @@ class Exchange {
     return this.sellOrders.peek().price;
   }
 
-  getMarketDepth(numOrders) {}
+  getMarketDepth(numOrders) {
+    const bids = [];
+
+    let lastPriceIdx = -1;
+
+    // Get Bids
+    for (let i = 0; i < Math.min(numOrders, this.sellOrders.heap.length); i++) {
+      const price = this.sellOrders.heap[i].price;
+      const quantity = this.sellOrders.heap[i].quantity;
+
+      if (lastPriceIdx == -1 || bids[lastPriceIdx].price != price) {
+        lastPriceIdx++;
+        bids.push({
+          price,
+          quantity,
+        });
+      } else {
+        bids[lastPriceIdx].quantity += quantity;
+      }
+    }
+
+    const asks = [];
+    lastPriceIdx = -1;
+
+    // Get Asks
+    for (let i = 0; i < Math.min(numOrders, this.buyOrders.heap.length); i++) {
+      const price = this.buyOrders.heap[i].price;
+      const quantity = this.buyOrders.heap[i].quantity;
+
+      if (lastPriceIdx == -1 || asks[lastPriceIdx].price != price) {
+        lastPriceIdx++;
+        asks.push({
+          price,
+          quantity,
+        });
+      } else {
+        asks[lastPriceIdx].quantity += quantity;
+      }
+    }
+
+    bids.sort((a, b) => a.price - b.price);
+    asks.sort((a, b) => b.price - a.price);
+
+    return { bids, asks };
+  }
 }
 
 /**
