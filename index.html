@@ -66,7 +66,6 @@
   </head>
   <body>
     <!-- HTML -->
-    <div id="chartdiv"></div>
     <h1>SUBMIT BUY ORDER</h1>
     <form id="form-buy-order" action="">
       <h3>Price</h3>
@@ -110,8 +109,11 @@
       var form = document.getElementById("form");
       var input = document.getElementById("input");
       var buyOrderForm = document.getElementById("form-buy-order");
+      var sellOrderForm = document.getElementById("form-sell-order");
       var buyPrice = document.getElementById("buy-price");
       var buyQuantity = document.getElementById("buy-quantity");
+      var sellPrice = document.getElementById("sell-price");
+      var sellQuantity = document.getElementById("sell-quantity");
       var buyOrderType = document.getElementById("buy-orderType");
       const marketDepthUpdateButton = document.getElementById(
         "market-depth-update"
@@ -129,17 +131,24 @@
         socket.emit("SUBMIT_BUY_ORDER", req);
       };
 
+      const sendSellOrder = () => {
+        const order = {
+          price: parseInt(sellPrice.value, 10),
+          orderType: "SELL_MARKET",
+          quantity: parseInt(sellQuantity.value, 10),
+        };
+        const req = { order, authToken: getCookie("authToken") };
+        socket.emit("SUBMIT_SELL_ORDER", req);
+      };
+
       buyOrderForm.addEventListener("submit", function (e) {
         e.preventDefault();
         sendBuyOrder();
       });
 
-      form.addEventListener("submit", function (e) {
+      sellOrderForm.addEventListener("submit", function (e) {
         e.preventDefault();
-        sendBuyOrder();
-        if (input.value) {
-          socket.emit("chat message", input.value);
-        }
+        sendSellOrder();
       });
 
       const renderMarketDepth = () => {
@@ -158,7 +167,7 @@
               zoomType: "xy",
             },
             title: {
-              text: "ETH-BTC Market Depth",
+              text: "LAP Market Depth",
             },
             xAxis: {
               minPadding: 0,
@@ -238,6 +247,7 @@
       };
 
       marketDepthUpdateButton.addEventListener("click", () => {
+        console.log("HEY")
         renderMarketDepth();
       });
     </script>

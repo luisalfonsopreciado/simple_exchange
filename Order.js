@@ -69,22 +69,16 @@ Order.equals = (o1, o2) => {
 
 Order.validate = (order) => {
   if (!order) return false;
-  if (!order.price || typeof order.price != "number") {
-    console.log("Invalid price");
+  if (!order.price || typeof order.price != "number" || order.price <= 0) {
     return false;
   }
   if (!order.orderType || Order.types[order.orderType] == undefined) {
-    console.log("invalid orderType");
     return false;
   }
-  if (!order.quantity || typeof order.quantity != "number") {
-    console.log("invalid quantity");
+  if (!order.quantity || typeof order.quantity != "number" || order.quantity <= 0) {
     return false;
   }
-  // if (!order.date || typeof order.date != "string") {
-  //   console.log("invalid Date");
-  //   return false;
-  // }
+
   return true;
 };
 

@@ -10,10 +10,12 @@ const { PriorityQueue } = require("./data_structures/PriorityQueue");
 const { Order } = require("./Order");
 const { User } = require("./User");
 const { UserAuthManager } = require("./UserAuthManager");
-var cors = require("cors");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(cookieParser());
 
 app.use(cors());
 
@@ -66,6 +68,8 @@ app.post("/authenticate", (req, res) => {
   if (!token) {
     return res.status(400).send();
   }
+
+  res.setHeader("Set-Cookie", "authToken=" + token);
 
   res.status(200).send({ token: token });
 });
@@ -138,7 +142,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.get('*', function(req, res){
+app.get("*", function (req, res) {
   res.status(404).sendFile(__dirname + "/404.html");
 });
 
