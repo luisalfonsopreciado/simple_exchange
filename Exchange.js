@@ -21,10 +21,9 @@ class Exchange {
    */
   submitBuyOrder(buyOrder, user) {
     user.buyOrders.push(buyOrder);
+    buyOrder.exchangeQuantity = buyOrder.quantity;
     this.buyOrders.push(buyOrder);
     this._fillMatchingOrders();
-    // console.log("Buy order submitted")
-    // console.log(this.buyOrders);
   }
 
   /**
@@ -34,10 +33,9 @@ class Exchange {
    */
   submitSellOrder(sellOrder, user) {
     user.sellOrders.push(sellOrder);
+    sellOrder.exchangeQuantity = sellOrder.quantity;
     this.sellOrders.push(sellOrder);
     this._fillMatchingOrders();
-    // console.log("Sell order submitted")
-    // console.log(this.sellOrders);
   }
 
   /**
@@ -57,16 +55,16 @@ class Exchange {
           " Sell Price: " +
           topSellOrder.price +
           " Quantity: " +
-          Math.min(topBuyOrder.quantity, topSellOrder.quantity)
+          Math.min(topBuyOrder.exchangeQuantity, topSellOrder.exchangeQuantity)
       );
-      if (topBuyOrder.quantity < topSellOrder.quantity) {
-        topSellOrder.quantity -= topBuyOrder.quantity;
+      if (topBuyOrder.exchangeQuantity < topSellOrder.exchangeQuantity) {
+        topSellOrder.exchangeQuantity -= topBuyOrder.exchangeQuantity;
         this.filledOrders.push(this.buyOrders.pop());
       } else {
-        topBuyOrder.quantity -= topSellOrder.quantity;
-        topSellOrder.quantity = 0;
+        topBuyOrder.exchangeQuantity -= topSellOrder.exchangeQuantity;
+        topSellOrder.exchangeQuantity = 0;
         this.filledOrders.push(this.sellOrders.pop());
-        if (topBuyOrder.quantity == 0) {
+        if (topBuyOrder.exchangeQuantity == 0) {
           this.filledOrders.push(this.buyOrders.pop());
         }
       }
@@ -106,43 +104,47 @@ class Exchange {
   }
 
   getMarketDepth(numOrders) {
-    const bids = [];
-
-    let lastPriceIdx = -1;
+    const bids = {};
 
     // Get Bids
     for (let i = 0; i < Math.min(numOrders, this.sellOrders.heap.length); i++) {
       const price = this.sellOrders.heap[i].price;
-      const quantity = this.sellOrders.heap[i].quantity;
+      const exchangeQuantity = this.sellOrders.heap[i].exchangeQuantity;
 
-      if (lastPriceIdx == -1 || bids[lastPriceIdx].price != price) {
-        lastPriceIdx++;
-        bids.push([price, quantity]);
+      if (!bids[price]) {
+        bids[price] = exchangeQuantity;
       } else {
-        bids[lastPriceIdx][1] += quantity;
+        bids[price] += exchangeQuantity;
       }
     }
 
-    const asks = [];
-    lastPriceIdx = -1;
+    const asks = {};
 
     // Get Asks
     for (let i = 0; i < Math.min(numOrders, this.buyOrders.heap.length); i++) {
       const price = this.buyOrders.heap[i].price;
-      const quantity = this.buyOrders.heap[i].quantity;
+      const exchangeQuantity = this.buyOrders.heap[i].exchangeQuantity;
 
-      if (lastPriceIdx == -1 || asks[lastPriceIdx].price != price) {
-        lastPriceIdx++;
-        asks.push([price, quantity]);
+      if (!asks[price]) {
+        asks[price] = exchangeQuantity;
       } else {
-        asks[lastPriceIdx][1] += quantity;
+        asks[price] += exchangeQuantity;
       }
     }
+    
+    const bidsArray = Object.keys(bids).map((price) => [
+      Number(price),
+      bids[price],
+    ]);
+    const asksArray = Object.keys(asks).map((price) => [
+      Number(price),
+      asks[price],
+    ]);
 
-    bids.sort((a, b) => a[0] - b[0]);
-    asks.sort((a, b) => b[0] - a[0]);
+    bidsArray.sort((a, b) => a[0] - b[0]);
+    asksArray.sort((a, b) => b[0] - a[0]);
 
-    return { bids, asks };
+    return { bids: bidsArray, asks: asksArray };
   }
 }
 
