@@ -43,13 +43,13 @@ app.post("/createUser", (req, res) => {
   const user = req.body;
 
   if (!User.validateRequest(user)) {
-    return res.status(400).send("Invalid User arguments");
+    return res.status(400).send({ message: "Invalid User Credentials" });
   }
 
   user.funds = 1000;
 
   if (!authManager.createUser(user)) {
-    return res.status(400).send("Username taken");
+    return res.status(400).send({ message: "Username taken" });
   }
 
   return res.status(200).send(user);
@@ -66,7 +66,7 @@ app.post("/authenticate", (req, res) => {
   );
 
   if (!token) {
-    return res.status(400).send();
+    return res.status(400).send({ message: "Invalid Credentials" });
   }
 
   res.setHeader("Set-Cookie", "authToken=" + token);
