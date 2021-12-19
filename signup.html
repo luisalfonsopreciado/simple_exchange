@@ -176,7 +176,7 @@
         }
 
         const Http = new XMLHttpRequest();
-        const url = "http://localhost:55551/createUser";
+        const url =  window.location.origin + "/createUser";
 
         Http.open("POST", url);
         Http.setRequestHeader("Content-Type", "application/json");
@@ -184,7 +184,7 @@
 
         Http.onreadystatechange = (e) => {
           if (e.target.status == 200) {
-            location.href = "http://localhost:55551/login";
+            location.href = window.location.origin + "/login";
           } else {
             document.getElementById(
               "err-msg"

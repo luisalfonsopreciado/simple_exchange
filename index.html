@@ -234,7 +234,7 @@
 
       const renderMarketDepth = () => {
         const Http = new XMLHttpRequest();
-        const url = "http://localhost:55551/marketDepth";
+        const url = window.location.origin + "/marketDepth";
         Http.open("GET", url);
         Http.send();
 
