@@ -9,6 +9,8 @@ class UserAuthManager {
     this.userAuthTokens = {};
     // Map username to user
     this.userStore = {};
+    // Map userId to user
+    this.userIdSearch = {};
   }
 
   /**
@@ -45,8 +47,8 @@ class UserAuthManager {
   createUser(user) {
     if (!User.validate(user)) return false;
     if (this.userStore[user.username]) return false;
-    user.id = UUID.createUUID();
     this.userStore[user.username] = user;
+    this.userIdSearch[user.id] = user;
     return true;
   }
 

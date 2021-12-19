@@ -7,6 +7,8 @@ class User {
     this.username = username;
     this.password = password;
     this.funds = funds;
+    this.buyOrders = [];
+    this.sellOrders = [];
     this.id = UUID.createUUID();
   }
 

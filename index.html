@@ -72,7 +72,15 @@
   </head>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="#">Simple Exchange</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -84,7 +92,7 @@
           <a class="nav-link" href="/signup">Signup</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" id="logout-btn" >Logout</a>
+          <a class="nav-link" href="#" id="logout-btn">Logout</a>
         </li>
       </ul>
     </div>
@@ -143,6 +151,16 @@
       </form>
 
       <button id="market-depth-update">Update Market Depth</button>
+      <button id="my-orders">View my Orders</button>
+
+      <ul class="list-group list-group-flush" id="order-list-buy">
+  
+      </ul>
+
+      <ul class="list-group list-group-flush" id="order-list-sell">
+  
+      </ul>
+
       <div id="container"></div>
     </div>
 
@@ -175,6 +193,7 @@
       var sellQuantity = document.getElementById("sell-quantity");
       var buyOrderType = document.getElementById("buy-orderType");
       var logoutButton = document.getElementById("logout-btn");
+      var viewOrdersButton = document.getElementById("my-orders");
 
       const marketDepthUpdateButton = document.getElementById(
         "market-depth-update"
@@ -230,6 +249,34 @@
           return;
         }
         sendSellOrder();
+      });
+
+      viewOrdersButton.addEventListener("click", () => {
+        const Http = new XMLHttpRequest();
+        const url = window.location.origin + "/myOrders";
+
+        Http.open("GET", url);
+        Http.send();
+        Http.onreadystatechange = (e) => {
+          const res = JSON.parse(Http.response);
+          if (Http.status != 200) {
+            setError(res.message);
+            return;
+          }
+          console.log(res);
+          const orderListBuy = document.getElementById("order-list-buy");
+          const orderListSell = document.getElementById("order-list-sell");
+          orderListBuy.innerHTML = "";
+          orderListSell.innerHTML = "";
+        
+          for (let order of res.buyOrders) {
+            orderListBuy.innerHTML += `<li class="list-group-item">BUY $${order.price}, Q:${order.quantity}</li>`
+          }
+
+          for (let order of res.sellOrders) {
+            orderListSell.innerHTML += `<li class="list-group-item">SELL $${order.price}, Q:${order.quantity}</li>`
+          }
+        };
       });
 
       const renderMarketDepth = () => {

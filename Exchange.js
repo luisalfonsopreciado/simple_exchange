@@ -17,8 +17,10 @@ class Exchange {
   /**
    * Submits a buy order
    * @param {Order} buyOrder
+   * @param {User} user
    */
-  submitBuyOrder(buyOrder) {
+  submitBuyOrder(buyOrder, user) {
+    user.buyOrders.push(buyOrder);
     this.buyOrders.push(buyOrder);
     this._fillMatchingOrders();
     // console.log("Buy order submitted")
@@ -28,8 +30,10 @@ class Exchange {
   /**
    * Submits a sell order
    * @param {Order} sellOrder
+   * @param {User} user
    */
-  submitSellOrder(sellOrder) {
+  submitSellOrder(sellOrder, user) {
+    user.sellOrders.push(sellOrder);
     this.sellOrders.push(sellOrder);
     this._fillMatchingOrders();
     // console.log("Sell order submitted")

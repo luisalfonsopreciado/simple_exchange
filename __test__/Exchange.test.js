@@ -1,6 +1,7 @@
 const { Exchange } = require("../Exchange");
 const { Order } = require("../Order");
 const { PriorityQueue } = require("../data_structures/PriorityQueue");
+const { User } = require("../User");
 
 const order = new Order(100, "BUY_CALL", new Date().toISOString());
 const order1 = new Order(120, "BUY_STOP", new Date().toISOString());
@@ -10,8 +11,13 @@ const order4 = new Order(160, "BUY_STOP", new Date().toISOString());
 const order5 = new Order(70, "BUY_STOP", new Date().toISOString());
 const order6 = new Order(100, "BUY_CALL", new Date().toISOString());
 
+const user1 = new User("Luis", "Preciado", "luis", "password123", 1000);
+
 const constructBuyOrderQueue = () => {
-  const buyQueue = new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR, Order.equals);
+  const buyQueue = new PriorityQueue(
+    Exchange.DECREASING_PRICE_COMPARATOR,
+    Order.equals
+  );
   buyQueue.push(order);
   buyQueue.push(order1);
   buyQueue.push(order2);
@@ -31,7 +37,10 @@ const sorder5 = new Order(70, "SELL_STOP", new Date().toISOString());
 const sorder6 = new Order(100, "SELL_CALL", new Date().toISOString());
 
 const constructSellOrderQueue = () => {
-  const sellQueue = new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR, Order.equals);
+  const sellQueue = new PriorityQueue(
+    Exchange.INCREASING_PRICE_COMPARATOR,
+    Order.equals
+  );
 
   sellQueue.push(sorder);
   sellQueue.push(sorder1);
@@ -47,7 +56,7 @@ test("Creates an Exchange", () => {
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
 
   expect(exchange.buyOrders).toBeTruthy();
@@ -60,10 +69,10 @@ test("Submits Buy Order", () => {
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const buyOrder = new Order(170, "BUY_CALL", new Date().toISOString());
-  exchange.submitBuyOrder(buyOrder);
+  exchange.submitBuyOrder(buyOrder, user1);
 
   expect(exchange.buyOrders.size() == 1).toBeTruthy();
   expect(exchange.buyOrders.pop().equals(buyOrder)).toBeTruthy();
@@ -74,10 +83,10 @@ test("Submits Sell Order", () => {
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString());
-  exchange.submitSellOrder(sellOrder);
+  exchange.submitSellOrder(sellOrder, user1);
 
   expect(exchange.sellOrders.size() == 1).toBeTruthy();
   expect(exchange.sellOrders.pop().equals(sellOrder)).toBeTruthy();
@@ -88,12 +97,12 @@ test("Returns proper bid ask spread", () => {
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString());
-  exchange.submitSellOrder(sellOrder);
+  exchange.submitSellOrder(sellOrder, user1);
   const buyOrder = new Order(160, "SELL_CALL", new Date().toISOString());
-  exchange.submitBuyOrder(buyOrder);
+  exchange.submitBuyOrder(buyOrder, user1);
 
   expect(exchange.getAsk() == 170).toBeTruthy();
   expect(exchange.getBid() == 160).toBeTruthy();
@@ -103,12 +112,12 @@ test("Fills Matching Orders: Same Price, Same Quantity", () => {
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 1);
-  exchange.submitSellOrder(sellOrder);
+  exchange.submitSellOrder(sellOrder, user1);
   const buyOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 1);
-  exchange.submitBuyOrder(buyOrder);
+  exchange.submitBuyOrder(buyOrder, user1);
 
   expect(exchange.sellOrders.size() == 0).toBeTruthy();
   expect(exchange.buyOrders.size() == 0).toBeTruthy();
@@ -119,12 +128,12 @@ test("Fills Matching Orders: Same Price, Different Quantity", () => {
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 2);
-  exchange.submitSellOrder(sellOrder);
+  exchange.submitSellOrder(sellOrder, user1);
   const buyOrder = new Order(170, "BUY_CALL", new Date().toISOString(), 1);
-  exchange.submitBuyOrder(buyOrder);
+  exchange.submitBuyOrder(buyOrder, user1);
 
   expect(exchange.sellOrders.size() == 1).toBeTruthy();
   expect(exchange.buyOrders.size() == 0).toBeTruthy();
@@ -135,14 +144,14 @@ test("Fills Matching Orders: Same Price, Same Quantity", () => {
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 2);
-  exchange.submitSellOrder(sellOrder);
+  exchange.submitSellOrder(sellOrder, user1);
   const buyOrder = new Order(170, "BUY_CALL", new Date().toISOString(), 1);
-  exchange.submitBuyOrder(buyOrder);
+  exchange.submitBuyOrder(buyOrder, user1);
   const buyOrder1 = new Order(180, "BUY_CALL", new Date().toISOString(), 1);
-  exchange.submitBuyOrder(buyOrder1);
+  exchange.submitBuyOrder(buyOrder1, user1);
 
   expect(exchange.sellOrders.size() == 0).toBeTruthy();
   expect(exchange.buyOrders.size() == 0).toBeTruthy();
@@ -153,17 +162,17 @@ test("Fills Matching Orders: Different Quantity, Different Prices", () => {
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
 
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 20);
-  exchange.submitSellOrder(sellOrder);
+  exchange.submitSellOrder(sellOrder, user1);
   const buyOrder = new Order(170, "BUY_CALL", new Date().toISOString(), 15);
-  exchange.submitBuyOrder(buyOrder);
+  exchange.submitBuyOrder(buyOrder, user1);
   const buyOrder1 = new Order(180, "BUY_CALL", new Date().toISOString(), 2);
-  exchange.submitBuyOrder(buyOrder1);
+  exchange.submitBuyOrder(buyOrder1, user1);
   const buyOrder2 = new Order(180, "BUY_CALL", new Date().toISOString(), 3);
-  exchange.submitBuyOrder(buyOrder2);
+  exchange.submitBuyOrder(buyOrder2, user1);
 
   expect(exchange.sellOrders.size() == 0).toBeTruthy();
   expect(exchange.buyOrders.size() == 0).toBeTruthy();
@@ -174,17 +183,17 @@ test("Fills Matching Orders: Different Quantity, Different Prices, filled Orders
   const exchange = new Exchange(
     "AMZN",
     new PriorityQueue(Exchange.DECREASING_PRICE_COMPARATOR),
-  new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
+    new PriorityQueue(Exchange.INCREASING_PRICE_COMPARATOR)
   );
 
   const sellOrder = new Order(170, "SELL_CALL", new Date().toISOString(), 20);
-  exchange.submitSellOrder(sellOrder);
+  exchange.submitSellOrder(sellOrder, user1);
   const buyOrder = new Order(170, "BUY_CALL", new Date().toISOString(), 15);
-  exchange.submitBuyOrder(buyOrder);
+  exchange.submitBuyOrder(buyOrder, user1);
   const buyOrder1 = new Order(180, "BUY_CALL", new Date().toISOString(), 2);
-  exchange.submitBuyOrder(buyOrder1);
+  exchange.submitBuyOrder(buyOrder1, user1);
   const buyOrder2 = new Order(180, "BUY_CALL", new Date().toISOString(), 3);
-  exchange.submitBuyOrder(buyOrder2);
+  exchange.submitBuyOrder(buyOrder2, user1);
 
   expect(exchange.sellOrders.size() == 0).toBeTruthy();
   expect(exchange.buyOrders.size() == 0).toBeTruthy();

@@ -39,6 +39,28 @@ app.get("/login", (req, res) => {
   res.sendFile(__dirname + "/login.html");
 });
 
+app.get("/myOrders", (req, res) => {
+  const cookieJSON = cookieParser.JSONCookies(req.cookies);
+
+  if (!authManager.validateToken(cookieJSON.authToken)) {
+    return res.status(401).send({ message: "Authenticate to View Buy Orders" });
+  }
+
+  const userId = authManager.userTokens[cookieJSON.authToken];
+
+  const user = authManager.userIdSearch[userId];
+
+  if (!user) {
+    return res
+      .status(500)
+      .send({ message: "Something went wrong on our side" });
+  }
+
+  return res
+    .status(200)
+    .send({ buyOrders: user.buyOrders, sellOrders: user.sellOrders });
+});
+
 app.post("/createUser", (req, res) => {
   const user = req.body;
 
@@ -46,13 +68,13 @@ app.post("/createUser", (req, res) => {
     return res.status(400).send({ message: "Invalid User Credentials" });
   }
 
-  user.funds = 1000;
+  const serverUser = new User(user.firstName, user.lastName, user.username, user.password, 1000);
 
-  if (!authManager.createUser(user)) {
+  if (!authManager.createUser(serverUser)) {
     return res.status(400).send({ message: "Username taken" });
   }
 
-  return res.status(200).send(user);
+  return res.status(200).send();
 });
 
 app.post("/authenticate", (req, res) => {
@@ -102,11 +124,15 @@ io.on("connection", (socket) => {
 
     event.order.userId = userId;
 
-    exchange.submitBuyOrder(event.order);
+    const user = authManager.userIdSearch[userId];
+
+    exchange.submitBuyOrder(event.order, user);
   });
 
   socket.on(cts.SUBMIT_SELL_ORDER, (event) => {
-    if (!authManager.validateToken(event.authToken)) {
+    const userId = authManager.validateToken(event.authToken);
+
+    if (!userId) {
       return socket.send("Invalid token");
     }
 
@@ -122,19 +148,11 @@ io.on("connection", (socket) => {
       return socket.send("Invalid Order");
     }
 
-    exchange.submitSellOrder(event.order);
-  });
+    event.order.userId = userId;
 
-  socket.on(cts.USER_AUTHENTICATE, (event) => {
-    const authToken = !authManager.authenticateUser(
-      event.username,
-      event.password
-    );
-    if (!authToken) {
-      return socket.send("Invalid Credentials");
-    }
+    const user = authManager.userIdSearch[userId];
 
-    return socket.send(authToken);
+    exchange.submitSellOrder(event.order, user);
   });
 
   socket.on("disconnect", () => {
